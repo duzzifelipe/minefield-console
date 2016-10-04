@@ -60,7 +60,16 @@ public class Board {
      * @return
      */
     public boolean open(int pos_x, int pos_y) {
-        return true;
+        if (points[pos_x][pos_y] instanceof Bomb) {
+            ((Bomb) points[pos_x][pos_y]).setFired(true);
+            return false;
+
+        } else if(points[pos_x][pos_y] instanceof Number) {
+            ((Number) points[pos_x][pos_y]).setOpen(true);
+            return true;
+        }
+
+        return false;
     }
 
     /**
