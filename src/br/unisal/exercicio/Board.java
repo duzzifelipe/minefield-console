@@ -3,6 +3,7 @@ package br.unisal.exercicio;
 import java.util.Random;
 
 public class Board {
+    private final int MAX_BORDERER = 1;
     private int size_m = 0;
     private int size_n = 0;
     private int bomb = 0;
@@ -92,7 +93,7 @@ public class Board {
         for (int i = 0; i < this.size_m; i++) {
             for (int j = 0; j < this.size_n; j++) {
                 if (this.points[i][j] instanceof Number && ((Number) this.points[i][j]).isOpen()) {
-                    System.out.print(Color.ANSI_BLUE + "0  " + Color.ANSI_RESET);
+                    System.out.print(Color.ANSI_BLUE + this.nearby_bombs(i, j) +"  " + Color.ANSI_RESET);
 
                 } else if (this.points[i][j] instanceof Bomb && ((Bomb) this.points[i][j]).isFired()) {
                     System.out.print(Color.ANSI_RED + "*  " + Color.ANSI_RESET);
@@ -140,6 +141,38 @@ public class Board {
      */
     public boolean is_valid_position(int pos_x, int pos_y) {
         return pos_x <= this.getSize_m() && pos_x >= 0 && pos_y <= this.getSize_n() && pos_y >= 0;
+    }
+
+
+    /***
+     *
+     *
+     * PRIVATE METHODS
+     *
+     *
+     */
+
+    /**
+     * Count nearby bombs at a maximum of 5x5 fields from the position
+     * @param pos_x
+     * @param pos_y
+     * @return
+     */
+    private int nearby_bombs(int pos_x, int pos_y) {
+        int bomb_count = 0;
+        int i_min = (pos_x - this.MAX_BORDERER >= 0) ? (pos_x - this.MAX_BORDERER) : 0;
+        int i_max = (pos_x + this.MAX_BORDERER <= this.size_m) ? (pos_x + this.MAX_BORDERER) : this.size_m;
+        int j_min = (pos_y - this.MAX_BORDERER >= 0) ? (pos_y - this.MAX_BORDERER) : 0;
+        int j_max = (pos_y + this.MAX_BORDERER <= this.size_n) ? (pos_y + this.MAX_BORDERER) : this.size_n;
+
+        for(int i = i_min; i < i_max; i++) {
+            for (int j = j_min; j < j_max; j++) {
+                if (this.points[i][j] instanceof Bomb)
+                    bomb_count++;
+            }
+        }
+
+        return bomb_count;
     }
 
     /**
