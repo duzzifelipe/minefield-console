@@ -6,4 +6,8 @@ public class Number extends Point {
     public void setOpen(boolean open) {
         this.open = open;
     }
+
+    public boolean isOpen() {
+        return this.open;
+    }
 }

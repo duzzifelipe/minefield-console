@@ -6,4 +6,8 @@ public class Bomb extends Point {
     public void setFired(boolean fired) {
         this.fired = fired;
     }
+
+    public boolean isFired() {
+        return this.fired;
+    }
 }

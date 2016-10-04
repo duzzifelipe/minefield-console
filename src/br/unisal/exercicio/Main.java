@@ -11,6 +11,7 @@ public class Main {
 
         Main.construct_table();
         board_1.append_bombs();
+        board_1.display_board();
 
         do {
             int pos_x = 0;
@@ -29,6 +30,7 @@ public class Main {
                     pos_y = sc.nextInt() - 1;
                     type_cond = board_1.is_valid_position(pos_x, pos_y);
 
+                    // If all ok, open a position and save if success in 'running'
                     if (type_cond) {
                         running = board_1.open(pos_x, pos_y);
                         break;
@@ -43,9 +45,12 @@ public class Main {
 
             } while (type_cond);
 
-            board_1.display_board();
+            // Only display for winning game
+            if (running) {
+                board_1.display_board();
+            }
 
-        } while(running);
+        } while (running);
 
         board_1.finalize_game();
     }
@@ -81,7 +86,7 @@ public class Main {
                 System.out.println("\n" + Color.ANSI_RED + "Type an allowed number." + Color.ANSI_RESET + "\n");
                 next = false;
             }
-            
+
         } while (!next);
     }
 }
