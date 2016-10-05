@@ -13,7 +13,10 @@ public class Board {
         this.size_m = size_m;
         this.size_n = size_n;
 
-        if (bomb > size_m * size_n) {
+        if (this.size_m >= 100 || this.size_n >= 100) {
+            throw new Exception("Impossible to create this dimension.");
+
+        } else if (bomb > size_m * size_n) {
             throw new Exception("Impossible to add more bombs than fields number.");
         }
 
@@ -100,7 +103,13 @@ public class Board {
      */
     public void display_board() {
         System.out.println("");
+
+        this.print_board_header();
+
         for (int i = 0; i < this.size_m; i++) {
+
+            this.print_line_helper(i);
+
             for (int j = 0; j < this.size_n; j++) {
                 if (this.points[i][j] instanceof Number && ((Number) this.points[i][j]).isOpen()) {
                     Number point = (Number) this.points[i][j];
@@ -112,8 +121,8 @@ public class Board {
                         System.out.print(Color.ANSI_BLUE + "" + point.getSideBombs() + "  " + Color.ANSI_RESET);
                     }
 
-                } else if (this.points[i][j] instanceof Bomb && ((Bomb) this.points[i][j]).isFired()) {
-                    System.out.print(Color.ANSI_RED + "*  " + Color.ANSI_RESET);
+                } else if (this.points[i][j] instanceof Bomb) {
+                    System.out.print(Color.ANSI_RED + "#  " + Color.ANSI_RESET);
 
                 } else {
                     System.out.print(Color.ANSI_GREEN + "#  " + Color.ANSI_RESET);
@@ -137,6 +146,9 @@ public class Board {
 
         System.out.println("");
         for (int i = 0; i < this.size_m; i++) {
+
+            this.print_line_helper(i);
+
             for (int j = 0; j < this.size_n; j++) {
                 if (this.points[i][j] instanceof Bomb) {
                     System.out.print(Color.ANSI_RED + "*  " + Color.ANSI_RESET);
@@ -170,7 +182,7 @@ public class Board {
      */
 
     private void open_zeros(int pos_x, int pos_y) {
-        ((Number) this.points[pos_x][pos_y]).setOpen(true);
+        this.open_zeros(pos_x, pos_y);
     }
 
     /**
@@ -188,19 +200,16 @@ public class Board {
 
     /**
      * Count nearby bombs at a maximum of 5x5 fields from the position
+     *
      * @param pos_x
      * @param pos_y
      * @return
      */
     private int nearby_bombs(int pos_x, int pos_y) {
         int bomb_count = 0;
-        int i_min = (pos_x - this.MAX_BORDERER >= 0) ? (pos_x - this.MAX_BORDERER) : 0;
-        int i_max = (pos_x + this.MAX_BORDERER <= (this.size_m - 1)) ? (pos_x + this.MAX_BORDERER) : (this.size_m - 1);
-        int j_min = (pos_y - this.MAX_BORDERER >= 0) ? (pos_y - this.MAX_BORDERER) : 0;
-        int j_max = (pos_y + this.MAX_BORDERER <= (this.size_n - 1)) ? (pos_y + this.MAX_BORDERER) : (this.size_n - 1);
 
-        for(int i = i_min; i <= i_max; i++) {
-            for (int j = j_min; j <= j_max; j++) {
+        for (int i = this.getIMin(pos_x); i <= this.getIMax(pos_x); i++) {
+            for (int j = this.getJMin(pos_y); j <= this.getJMax(pos_y); j++) {
                 if (this.points[i][j] instanceof Bomb && !this.points[i][j].equals(this.points[pos_x][pos_y]))
                     bomb_count++;
             }
@@ -246,5 +255,47 @@ public class Board {
                 }
             }
         }
+    }
+
+    private void print_board_header() {
+        System.out.print(Color.ANSI_BLUE + "#  ");
+
+        for (int i = 0; i < this.size_n; i++) {
+            String space = "  ";
+
+            if (i >= 9) {
+                space = " ";
+            }
+
+            System.out.print((i + 1) + space);
+        }
+
+        System.out.println(Color.ANSI_RESET);
+    }
+
+    private void print_line_helper(int i) {
+        String space = "  ";
+
+        if (i >= 9) {
+            space = " ";
+        }
+
+        System.out.print(Color.ANSI_BLUE + (i + 1) + space + Color.ANSI_RESET);
+    }
+
+    private int getIMin(int pos_x) {
+        return (pos_x - this.MAX_BORDERER >= 0) ? (pos_x - this.MAX_BORDERER) : 0;
+    }
+
+    private int getIMax(int pos_x) {
+        return (pos_x + this.MAX_BORDERER <= (this.size_m - 1)) ? (pos_x + this.MAX_BORDERER) : (this.size_m - 1);
+    }
+
+    private int getJMin(int pos_y) {
+        return (pos_y - this.MAX_BORDERER >= 0) ? (pos_y - this.MAX_BORDERER) : 0;
+    }
+
+    private int getJMax(int pos_y) {
+        return (pos_y + this.MAX_BORDERER <= (this.size_n - 1)) ? (pos_y + this.MAX_BORDERER) : (this.size_n - 1);
     }
 }
