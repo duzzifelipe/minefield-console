@@ -37,6 +37,7 @@ public class Main {
 
                     } else {
                         System.out.println("\n" + Color.ANSI_RED + "Type a position inside the board limits." + Color.ANSI_RESET);
+                        running = true;
                     }
 
                 } catch (InputMismatchException e) {

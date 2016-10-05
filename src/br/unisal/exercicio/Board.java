@@ -51,6 +51,7 @@ public class Board {
         }
 
         this.fill_with_numbers();
+        this.calculate_nearby_bombs();
 
         return 0;
     }
@@ -68,7 +69,16 @@ public class Board {
             return false;
 
         } else if (points[pos_x][pos_y] instanceof Number) {
-            ((Number) points[pos_x][pos_y]).setOpen(true);
+            Number point = ((Number) points[pos_x][pos_y]);
+
+            if (point.getSideBombs() == 0) {
+                // If 0, open all near Number with 0
+                this.open_zeros(pos_x, pos_y);
+
+            } else {
+                point.setOpen(true);
+            }
+
             return true;
         }
 
@@ -93,7 +103,14 @@ public class Board {
         for (int i = 0; i < this.size_m; i++) {
             for (int j = 0; j < this.size_n; j++) {
                 if (this.points[i][j] instanceof Number && ((Number) this.points[i][j]).isOpen()) {
-                    System.out.print(Color.ANSI_BLUE + this.nearby_bombs(i, j) +"  " + Color.ANSI_RESET);
+                    Number point = (Number) this.points[i][j];
+
+                    if (point.getSideBombs() == 0) {
+                        System.out.print(Color.ANSI_CYAN + "_  " + Color.ANSI_RESET);
+
+                    } else {
+                        System.out.print(Color.ANSI_BLUE + "" + point.getSideBombs() + "  " + Color.ANSI_RESET);
+                    }
 
                 } else if (this.points[i][j] instanceof Bomb && ((Bomb) this.points[i][j]).isFired()) {
                     System.out.print(Color.ANSI_RED + "*  " + Color.ANSI_RESET);
@@ -125,7 +142,7 @@ public class Board {
                     System.out.print(Color.ANSI_RED + "*  " + Color.ANSI_RESET);
 
                 } else {
-                    System.out.print(Color.ANSI_CYAN + "#  " + Color.ANSI_RESET);
+                    System.out.print(Color.ANSI_CYAN + "_  " + Color.ANSI_RESET);
                 }
             }
             System.out.println("");
@@ -152,6 +169,23 @@ public class Board {
      *
      */
 
+    private void open_zeros(int pos_x, int pos_y) {
+        ((Number) this.points[pos_x][pos_y]).setOpen(true);
+    }
+
+    /**
+     * Runs nearby_bombs() for each Number position and save into the class
+     */
+    private void calculate_nearby_bombs() {
+        for (int i = 0; i < size_m; i++) {
+            for (int j = 0; j < size_n; j++) {
+                if (this.points[i][j] instanceof Number) {
+                    ((Number) this.points[i][j]).setSideBombs(this.nearby_bombs(i, j));
+                }
+            }
+        }
+    }
+
     /**
      * Count nearby bombs at a maximum of 5x5 fields from the position
      * @param pos_x
@@ -161,13 +195,13 @@ public class Board {
     private int nearby_bombs(int pos_x, int pos_y) {
         int bomb_count = 0;
         int i_min = (pos_x - this.MAX_BORDERER >= 0) ? (pos_x - this.MAX_BORDERER) : 0;
-        int i_max = (pos_x + this.MAX_BORDERER <= this.size_m) ? (pos_x + this.MAX_BORDERER) : this.size_m;
+        int i_max = (pos_x + this.MAX_BORDERER <= (this.size_m - 1)) ? (pos_x + this.MAX_BORDERER) : (this.size_m - 1);
         int j_min = (pos_y - this.MAX_BORDERER >= 0) ? (pos_y - this.MAX_BORDERER) : 0;
-        int j_max = (pos_y + this.MAX_BORDERER <= this.size_n) ? (pos_y + this.MAX_BORDERER) : this.size_n;
+        int j_max = (pos_y + this.MAX_BORDERER <= (this.size_n - 1)) ? (pos_y + this.MAX_BORDERER) : (this.size_n - 1);
 
-        for(int i = i_min; i < i_max; i++) {
-            for (int j = j_min; j < j_max; j++) {
-                if (this.points[i][j] instanceof Bomb)
+        for(int i = i_min; i <= i_max; i++) {
+            for (int j = j_min; j <= j_max; j++) {
+                if (this.points[i][j] instanceof Bomb && !this.points[i][j].equals(this.points[pos_x][pos_y]))
                     bomb_count++;
             }
         }
