@@ -1,3 +1,7 @@
+// Only to support, keep this in mind (for this code):
+// Y, M, I are related to ROWS
+// X, N, J are related to COLS
+
 package br.unisal.exercicio;
 
 import java.util.Random;
@@ -44,13 +48,13 @@ public class Board {
             int pos_y = 0;
 
             do {
-                pos_x = random_num(this.size_m);
-                pos_y = random_num(this.size_n);
+                pos_x = random_num(this.size_n);
+                pos_y = random_num(this.size_m);
                 next = this.is_empty_point(pos_x, pos_y);
 
             } while (!next);
 
-            this.points[pos_x][pos_y] = new Bomb();
+            this.points[pos_y][pos_x] = new Bomb();
         }
 
         this.fill_with_numbers();
@@ -67,16 +71,17 @@ public class Board {
      * @return
      */
     public boolean open(int pos_x, int pos_y) {
-        if (points[pos_x][pos_y] instanceof Bomb) {
-            ((Bomb) points[pos_x][pos_y]).setFired(true);
+        if (points[pos_y][pos_x] instanceof Bomb) {
+            ((Bomb) points[pos_y][pos_x]).setFired(true);
             return false;
 
-        } else if (points[pos_x][pos_y] instanceof Number) {
-            Number point = ((Number) points[pos_x][pos_y]);
+        } else if (points[pos_y][pos_x] instanceof Number) {
+            Number point = ((Number) points[pos_y][pos_x]);
 
             if (point.getSideBombs() == 0) {
                 // If 0, open all near Number with 0
                 this.open_zeros(pos_x, pos_y);
+                point.setOpen(true);
 
             } else {
                 point.setOpen(true);
@@ -169,7 +174,7 @@ public class Board {
      * @return
      */
     public boolean is_valid_position(int pos_x, int pos_y) {
-        return pos_x <= this.getSize_m() && pos_x >= 0 && pos_y <= this.getSize_n() && pos_y >= 0;
+        return pos_x <= this.getSize_n() && pos_x >= 0 && pos_y <= this.getSize_m() && pos_y >= 0;
     }
 
 
@@ -182,7 +187,7 @@ public class Board {
      */
 
     private void open_zeros(int pos_x, int pos_y) {
-        this.open_zeros(pos_x, pos_y);
+        // TODO implement it
     }
 
     /**
@@ -208,9 +213,9 @@ public class Board {
     private int nearby_bombs(int pos_x, int pos_y) {
         int bomb_count = 0;
 
-        for (int i = this.getIMin(pos_x); i <= this.getIMax(pos_x); i++) {
-            for (int j = this.getJMin(pos_y); j <= this.getJMax(pos_y); j++) {
-                if (this.points[i][j] instanceof Bomb && !this.points[i][j].equals(this.points[pos_x][pos_y]))
+        for (int i = this.getIMin(pos_y); i <= this.getIMax(pos_y); i++) {
+            for (int j = this.getJMin(pos_x); j <= this.getJMax(pos_x); j++) {
+                if (this.points[i][j] instanceof Bomb && !this.points[i][j].equals(this.points[pos_y][pos_x]))
                     bomb_count++;
             }
         }
@@ -226,7 +231,7 @@ public class Board {
      * @return
      */
     private boolean is_empty_point(int pos_x, int pos_y) {
-        if (this.points[pos_x][pos_y] == null) {
+        if (this.points[pos_y][pos_x] == null) {
             return true;
         }
 
@@ -260,14 +265,14 @@ public class Board {
     private void print_board_header() {
         System.out.print(Color.ANSI_BLUE + "#  ");
 
-        for (int i = 0; i < this.size_n; i++) {
+        for (int j = 0; j < this.size_n; j++) {
             String space = "  ";
 
-            if (i >= 9) {
+            if (j >= 9) {
                 space = " ";
             }
 
-            System.out.print((i + 1) + space);
+            System.out.print((j + 1) + space);
         }
 
         System.out.println(Color.ANSI_RESET);
@@ -283,19 +288,19 @@ public class Board {
         System.out.print(Color.ANSI_BLUE + (i + 1) + space + Color.ANSI_RESET);
     }
 
-    private int getIMin(int pos_x) {
-        return (pos_x - this.MAX_BORDERER >= 0) ? (pos_x - this.MAX_BORDERER) : 0;
-    }
-
-    private int getIMax(int pos_x) {
-        return (pos_x + this.MAX_BORDERER <= (this.size_m - 1)) ? (pos_x + this.MAX_BORDERER) : (this.size_m - 1);
-    }
-
-    private int getJMin(int pos_y) {
+    private int getIMin(int pos_y) {
         return (pos_y - this.MAX_BORDERER >= 0) ? (pos_y - this.MAX_BORDERER) : 0;
     }
 
-    private int getJMax(int pos_y) {
-        return (pos_y + this.MAX_BORDERER <= (this.size_n - 1)) ? (pos_y + this.MAX_BORDERER) : (this.size_n - 1);
+    private int getIMax(int pos_y) {
+        return (pos_y + this.MAX_BORDERER <= (this.size_m - 1)) ? (pos_y + this.MAX_BORDERER) : (this.size_m - 1);
+    }
+
+    private int getJMin(int pos_x) {
+        return (pos_x - this.MAX_BORDERER >= 0) ? (pos_x - this.MAX_BORDERER) : 0;
+    }
+
+    private int getJMax(int pos_x) {
+        return (pos_x + this.MAX_BORDERER <= (this.size_n - 1)) ? (pos_x + this.MAX_BORDERER) : (this.size_n - 1);
     }
 }
