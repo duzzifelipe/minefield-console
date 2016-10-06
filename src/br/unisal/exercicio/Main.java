@@ -7,7 +7,7 @@ public class Main {
     private static Board board_1;
 
     public static void main(String[] args) {
-        boolean running = false;
+        int running = 0;
 
         Main.construct_table();
         board_1.append_bombs();
@@ -37,7 +37,7 @@ public class Main {
 
                     } else {
                         System.out.println("\n" + Color.ANSI_RED + "Type a position inside the board limits." + Color.ANSI_RESET);
-                        running = true;
+                        running = 0;
                     }
 
                 } catch (InputMismatchException e) {
@@ -47,13 +47,13 @@ public class Main {
             } while (type_cond);
 
             // Only display for winning game
-            if (running) {
+            if (running == 0) {
                 board_1.display_board();
             }
 
-        } while (running);
+        } while (running == 0);
 
-        board_1.finalize_game();
+        board_1.finalize_game(running);
     }
 
     private static void construct_table() {

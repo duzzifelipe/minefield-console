@@ -70,27 +70,23 @@ public class Board {
      * @param pos_y
      * @return
      */
-    public boolean open(int pos_x, int pos_y) {
+    public int open(int pos_x, int pos_y) {
         if (points[pos_y][pos_x] instanceof Bomb) {
             ((Bomb) points[pos_y][pos_x]).setFired(true);
-            return false;
+            return -1;
 
         } else if (points[pos_y][pos_x] instanceof Number) {
             Number point = ((Number) points[pos_y][pos_x]);
+            point.setOpen(true);
 
-            if (point.getSideBombs() == 0) {
-                // If 0, open all near Number with 0
-                this.open_zeros(pos_x, pos_y);
-                point.setOpen(true);
-
-            } else {
-                point.setOpen(true);
+            if(this.allOpen()) {
+                return 1;
             }
 
-            return true;
+            return 0;
         }
 
-        return false;
+        return -1;
     }
 
     /**
@@ -98,9 +94,15 @@ public class Board {
      *
      * @return
      */
-    public void finalize_game() {
+    public void finalize_game(int running) {
         this.display_board(true);
-        System.out.println("\n" + Color.ANSI_RED + "YOU LOST!" + Color.ANSI_RESET);
+
+        if (running == -1) {
+            System.out.println("\n" + Color.ANSI_RED + "YOU LOST!" + Color.ANSI_RESET);
+
+        } else {
+            System.out.println("\n" + Color.ANSI_GREEN + "YOU WON!" + Color.ANSI_RESET);
+        }
     }
 
     /**
@@ -125,9 +127,6 @@ public class Board {
                     } else {
                         System.out.print(Color.ANSI_BLUE + "" + point.getSideBombs() + "  " + Color.ANSI_RESET);
                     }
-
-                } else if (this.points[i][j] instanceof Bomb) {
-                    System.out.print(Color.ANSI_RED + "#  " + Color.ANSI_RESET);
 
                 } else {
                     System.out.print(Color.ANSI_GREEN + "#  " + Color.ANSI_RESET);
@@ -159,7 +158,12 @@ public class Board {
                     System.out.print(Color.ANSI_RED + "*  " + Color.ANSI_RESET);
 
                 } else {
-                    System.out.print(Color.ANSI_CYAN + "_  " + Color.ANSI_RESET);
+                    if (((Number) this.points[i][j]).isOpen()) {
+                        System.out.print(Color.ANSI_CYAN + "_  " + Color.ANSI_RESET);
+
+                    } else {
+                        System.out.print(Color.ANSI_GREEN + "#  " + Color.ANSI_RESET);
+                    }
                 }
             }
             System.out.println("");
@@ -186,10 +190,6 @@ public class Board {
      *
      */
 
-    private void open_zeros(int pos_x, int pos_y) {
-        // TODO implement it
-    }
-
     /**
      * Runs nearby_bombs() for each Number position and save into the class
      */
@@ -197,7 +197,7 @@ public class Board {
         for (int i = 0; i < size_m; i++) {
             for (int j = 0; j < size_n; j++) {
                 if (this.points[i][j] instanceof Number) {
-                    ((Number) this.points[i][j]).setSideBombs(this.nearby_bombs(i, j));
+                    ((Number) this.points[i][j]).setSideBombs(this.nearby_bombs(j, i));
                 }
             }
         }
@@ -252,6 +252,21 @@ public class Board {
     /**
      * Runs all matrix positions to find non-filled with bombs, than put a Number inside it
      */
+
+    private boolean allOpen() {
+        int number_count = 0;
+
+        for (int i = 0; i < this.size_m; i++) {
+            for (int j = 0; j < this.size_n; j++) {
+                if (this.points[i][j] instanceof Number && ((Number) this.points[i][j]).isOpen()) {
+                    number_count ++;
+                }
+            }
+        }
+
+        return number_count == ((this.size_m * this.size_n) - this.bomb);
+    }
+
     private void fill_with_numbers() {
         for (int i = 0; i < this.size_m; i++) {
             for (int j = 0; j < this.size_n; j++) {
